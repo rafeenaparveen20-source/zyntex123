@@ -1,0 +1,7 @@
+{
+  "name": "Zyntex — Make Your Space Truly Yours",
+  "description": "Zyntex room makeover products — premium, cozy and Pinterest-inspired home décor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
