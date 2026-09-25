@@ -58,6 +58,7 @@ export default function App() {
 
   // Admin banner & orders modal states
   const [isAdminBannerVisible, setIsAdminBannerVisible] = useState(true);
+  const [adminBannerHeight, setAdminBannerHeight] = useState(0);
   const [isAdminOrdersModalOpen, setIsAdminOrdersModalOpen] = useState(false);
   const [adminOrdersInitialSearch, setAdminOrdersInitialSearch] = useState('');
 
@@ -315,6 +316,7 @@ export default function App() {
         onGenerateTestOrder={handleGenerateTestOrder}
         isVisible={isAdminBannerVisible}
         onToggleVisible={() => setIsAdminBannerVisible(!isAdminBannerVisible)}
+        onHeightChange={setAdminBannerHeight}
       />
 
       {/* Floating Pill Header Navigation */}
@@ -323,6 +325,7 @@ export default function App() {
         wishlistCount={wishlistIds.length}
         ordersCount={orders.length}
         isAdminBannerVisible={isAdminBannerVisible}
+        bannerHeight={isAdminBannerVisible ? adminBannerHeight : 0}
         onOpenCart={() => setIsCartOpen(true)}
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
@@ -330,11 +333,12 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className={`flex-1 transition-all duration-300 ${isAdminBannerVisible ? 'pt-6' : 'pt-0'}`}>
+      <main className="flex-1 transition-all duration-300">
         {/* Hero Section */}
         <Hero
           onExploreShop={() => scrollToSection('shop')}
           onExploreMood={() => scrollToSection('mood')}
+          isAdminBannerVisible={isAdminBannerVisible}
         />
 
         {/* Mood Collections (Shop by mood) */}

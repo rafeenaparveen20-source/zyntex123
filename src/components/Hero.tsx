@@ -4,11 +4,12 @@ import { ArrowUpRight, Sparkles } from 'lucide-react';
 interface HeroProps {
   onExploreShop: () => void;
   onExploreMood: () => void;
+  isAdminBannerVisible?: boolean;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onExploreShop, onExploreMood }) => {
+export const Hero: React.FC<HeroProps> = ({ onExploreShop, onExploreMood, isAdminBannerVisible = false }) => {
   return (
-    <section className="relative min-h-[92vh] flex items-center pt-28 md:pt-36 pb-16 px-4 md:px-8 lg:px-14 overflow-hidden">
+    <section className={`relative min-h-[90vh] flex flex-col justify-center ${isAdminBannerVisible ? 'pt-40 sm:pt-48 md:pt-52 lg:pt-48' : 'pt-28 sm:pt-36 md:pt-40'} pb-16 px-4 md:px-8 lg:px-14 overflow-hidden transition-all duration-300`}>
       {/* Background Soft Glow / Organic Shapes */}
       <div className="absolute -right-32 top-20 w-[420px] h-[420px] rounded-full bg-[#dfe7d8] blur-2xl opacity-60 pointer-events-none" />
       <div className="absolute -left-20 bottom-10 w-[360px] h-[360px] rounded-full bg-[#faedd8] blur-3xl opacity-40 pointer-events-none" />

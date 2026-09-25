@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Heart, ShoppingBag, Menu, X, ClipboardList, Sparkles } from 'lucide-react';
 
 interface NavbarProps {
@@ -10,6 +10,7 @@ interface NavbarProps {
   ordersCount?: number;
   onOpenOrdersManager?: () => void;
   isAdminBannerVisible?: boolean;
+  bannerHeight?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -21,8 +22,18 @@ export const Navbar: React.FC<NavbarProps> = ({
   ordersCount = 0,
   onOpenOrdersManager,
   isAdminBannerVisible = false,
+  bannerHeight = 0,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 24);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
@@ -35,11 +46,22 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
+  // When scrolled down, float neatly near top (16px).
+  // When at top of page, clear the admin banner completely.
+  const topOffset = isScrolled
+    ? 16
+    : isAdminBannerVisible && bannerHeight > 0
+    ? bannerHeight + 14
+    : 16;
+
   return (
-    <header className={`fixed z-40 ${isAdminBannerVisible ? 'top-[92px] sm:top-[84px] md:top-[88px]' : 'top-4 md:top-5'} left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-[1180px] transition-all duration-300`}>
+    <header
+      style={{ top: `${topOffset}px` }}
+      className="fixed z-40 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-[1180px] transition-[top] duration-300 ease-out"
+    >
       <nav
         id="main-navigation"
-        className="flex items-center justify-between px-5 md:px-7 py-3 md:py-3.5 bg-white/80 backdrop-blur-xl border border-white/90 rounded-full shadow-[0_10px_35px_rgba(23,60,45,0.08)] transition-all duration-300"
+        className="flex items-center justify-between px-5 md:px-7 py-3 md:py-3.5 bg-white/85 backdrop-blur-xl border border-white/90 rounded-full shadow-[0_10px_35px_rgba(23,60,45,0.09)] transition-all duration-300"
       >
         {/* Brand Logo */}
         <a

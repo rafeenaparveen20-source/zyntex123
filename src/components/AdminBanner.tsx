@@ -21,6 +21,7 @@ interface AdminBannerProps {
   onGenerateTestOrder: () => void;
   isVisible: boolean;
   onToggleVisible: () => void;
+  onHeightChange?: (height: number) => void;
 }
 
 export const AdminBanner: React.FC<AdminBannerProps> = ({
@@ -29,9 +30,35 @@ export const AdminBanner: React.FC<AdminBannerProps> = ({
   onGenerateTestOrder,
   isVisible,
   onToggleVisible,
+  onHeightChange,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [quickSearch, setQuickSearch] = useState('');
+  const bannerRef = React.useRef<HTMLDivElement>(null);
+
+  // Measure and notify parent of exact banner height
+  React.useEffect(() => {
+    if (!isVisible) {
+      onHeightChange?.(0);
+      return;
+    }
+
+    const updateHeight = () => {
+      if (bannerRef.current) {
+        onHeightChange?.(bannerRef.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
+
+    if (bannerRef.current && typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => {
+        updateHeight();
+      });
+      ro.observe(bannerRef.current);
+      return () => ro.disconnect();
+    }
+  }, [isVisible, isCollapsed, orders.length, onHeightChange]);
 
   // Calculate live stats
   const totalOrders = orders.length;
@@ -68,7 +95,7 @@ export const AdminBanner: React.FC<AdminBannerProps> = ({
   }
 
   return (
-    <div className="relative z-50 w-full bg-[#132c22] border-b border-[#2d5845] text-[#f7f3ea] transition-all duration-300 shadow-md">
+    <div ref={bannerRef} className="relative z-50 w-full bg-[#132c22] border-b border-[#2d5845] text-[#f7f3ea] transition-all duration-300 shadow-md">
       {/* Top micro bar with system indicator */}
       <div className="max-w-[1340px] mx-auto px-4 py-2 sm:py-2.5">
         <div className="flex flex-wrap items-center justify-between gap-3">
