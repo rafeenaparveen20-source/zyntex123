@@ -21,12 +21,18 @@ import { QuickViewModal } from './components/QuickViewModal';
 import { CheckoutModal } from './components/CheckoutModal';
 import { AdminBanner } from './components/AdminBanner';
 import { AdminOrdersModal } from './components/AdminOrdersModal';
+import { AdminLoginPage } from './components/admin/AdminLoginPage';
+import { AdminDashboard } from './components/admin/AdminDashboard';
+import { MustChangePasswordModal } from './components/admin/MustChangePasswordModal';
 import { Toast } from './components/Toast';
+import { useAdminAuth } from './context/AdminAuthContext';
 import { PRODUCTS } from './data/mockData';
 import { INITIAL_ORDERS } from './data/mockOrders';
 import { Product, CartItem, ToastMessage, Order, OrderStatus } from './types';
 
 export default function App() {
+  const { isAuthenticated, mustChangePassword, user } = useAdminAuth();
+  const [currentView, setCurrentView] = useState<'store' | 'admin-login' | 'admin-dashboard'>('store');
   // State
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
@@ -95,6 +101,32 @@ export default function App() {
     }
   }, [orders]);
 
+  // Sync with URL Hash for Admin Route Navigation
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#admin' || hash === '#dashboard') {
+        if (isAuthenticated) {
+          setCurrentView('admin-dashboard');
+        } else {
+          setCurrentView('admin-login');
+        }
+      } else if (hash === '#login') {
+        if (isAuthenticated) {
+          setCurrentView('admin-dashboard');
+        } else {
+          setCurrentView('admin-login');
+        }
+      } else if (hash === '#store' || hash === '') {
+        setCurrentView('store');
+      }
+    };
+
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [isAuthenticated]);
+
   // Toast helper
   const showToast = (message: string, type: 'success' | 'info' | 'favorite' = 'success') => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 5);
@@ -109,8 +141,14 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Orders operations
+  // Orders operations (Protected for admin access)
   const handleOpenOrdersModal = (initialOrderNumber?: string) => {
+    if (!isAuthenticated) {
+      showToast('Admin authentication required to access order management', 'info');
+      setCurrentView('admin-login');
+      window.location.hash = 'login';
+      return;
+    }
     setAdminOrdersInitialSearch(initialOrderNumber || '');
     setIsAdminOrdersModalOpen(true);
   };
@@ -307,6 +345,82 @@ export default function App() {
     0
   );
 
+  // View 1: Admin Login Page
+  if (currentView === 'admin-login') {
+    return (
+      <div className="min-h-screen bg-[#f7f3ea] text-[#20251f]">
+        <AdminLoginPage
+          onSuccessRedirect={() => {
+            setCurrentView('admin-dashboard');
+            window.location.hash = 'admin';
+            showToast('Authentication verified! Welcome to Zyntex Admin Portal ✦', 'success');
+          }}
+          onBackToStore={() => {
+            setCurrentView('store');
+            window.location.hash = '';
+          }}
+        />
+        {isAuthenticated && mustChangePassword && (
+          <MustChangePasswordModal
+            onSuccess={() => {
+              showToast('Permanent password saved! Welcome to Zyntex Admin.', 'success');
+            }}
+          />
+        )}
+        <Toast toasts={toasts} onDismiss={dismissToast} />
+      </div>
+    );
+  }
+
+  // View 2: Admin Dashboard (Protected - Redirects to login if unauthenticated)
+  if (currentView === 'admin-dashboard') {
+    if (!isAuthenticated) {
+      return (
+        <div className="min-h-screen bg-[#f7f3ea] text-[#20251f]">
+          <AdminLoginPage
+            onSuccessRedirect={() => {
+              setCurrentView('admin-dashboard');
+              window.location.hash = 'admin';
+              showToast('Authentication verified! Welcome to Zyntex Admin Portal ✦', 'success');
+            }}
+            onBackToStore={() => {
+              setCurrentView('store');
+              window.location.hash = '';
+            }}
+          />
+          <Toast toasts={toasts} onDismiss={dismissToast} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-[#f7f3ea] text-[#20251f]">
+        <AdminDashboard
+          orders={orders}
+          products={PRODUCTS}
+          onUpdateOrderStatus={handleUpdateOrderStatus}
+          onUpdateTracking={handleUpdateTracking}
+          onDeleteOrder={handleDeleteOrder}
+          onAddOrder={handleAddOrder}
+          onGenerateTestOrder={handleGenerateTestOrder}
+          onBackToStore={() => {
+            setCurrentView('store');
+            window.location.hash = '';
+          }}
+          onShowToast={(msg, type) => showToast(msg, type || 'info')}
+        />
+        {mustChangePassword && (
+          <MustChangePasswordModal
+            onSuccess={() => {
+              showToast('Permanent password saved! Welcome to Zyntex Admin.', 'success');
+            }}
+          />
+        )}
+        <Toast toasts={toasts} onDismiss={dismissToast} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f7f3ea] text-[#20251f] flex flex-col selection:bg-[#173c2d] selection:text-white">
       {/* Top Admin Banner & Order Numbers Monitor */}
@@ -317,6 +431,16 @@ export default function App() {
         isVisible={isAdminBannerVisible}
         onToggleVisible={() => setIsAdminBannerVisible(!isAdminBannerVisible)}
         onHeightChange={setAdminBannerHeight}
+        isAuthenticated={isAuthenticated}
+        adminEmail={user?.email}
+        onOpenAdminDashboard={() => {
+          setCurrentView('admin-dashboard');
+          window.location.hash = 'admin';
+        }}
+        onOpenAdminLogin={() => {
+          setCurrentView('admin-login');
+          window.location.hash = 'login';
+        }}
       />
 
       {/* Floating Pill Header Navigation */}
@@ -330,6 +454,16 @@ export default function App() {
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenOrdersManager={() => handleOpenOrdersModal()}
+        isAuthenticated={isAuthenticated}
+        onOpenAdmin={() => {
+          if (isAuthenticated) {
+            setCurrentView('admin-dashboard');
+            window.location.hash = 'admin';
+          } else {
+            setCurrentView('admin-login');
+            window.location.hash = 'login';
+          }
+        }}
       />
 
       {/* Main Content Area */}
@@ -448,6 +582,15 @@ export default function App() {
         availableProducts={PRODUCTS}
         initialSearchQuery={adminOrdersInitialSearch}
       />
+
+      {/* Mandatory first-login password change barrier */}
+      {isAuthenticated && mustChangePassword && (
+        <MustChangePasswordModal
+          onSuccess={() => {
+            showToast('Permanent password saved! Welcome to Zyntex Admin.', 'success');
+          }}
+        />
+      )}
 
       {/* Toast Notification Container */}
       <Toast toasts={toasts} onDismiss={dismissToast} />

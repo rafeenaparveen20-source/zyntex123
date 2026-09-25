@@ -11,6 +11,8 @@ interface NavbarProps {
   onOpenOrdersManager?: () => void;
   isAdminBannerVisible?: boolean;
   bannerHeight?: number;
+  onOpenAdmin?: () => void;
+  isAuthenticated?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -23,6 +25,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenOrdersManager,
   isAdminBannerVisible = false,
   bannerHeight = 0,
+  onOpenAdmin,
+  isAuthenticated = false,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -105,14 +109,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action Icons */}
         <div className="flex items-center gap-1.5 md:gap-2">
-          {/* Admin Order Numbers Manager button */}
-          {onOpenOrdersManager && (
+          {/* Admin Portal button */}
+          {(onOpenAdmin || onOpenOrdersManager) && (
             <button
               id="nav-orders-button"
-              onClick={onOpenOrdersManager}
+              onClick={onOpenAdmin || onOpenOrdersManager}
               className="relative w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center text-[#20251f] hover:bg-[#eee9df] hover:text-[#173c2d] transition-colors"
-              title="Store Admin & Order Numbers"
-              aria-label="Order Numbers Manager"
+              title={isAuthenticated ? "Store Admin Dashboard" : "Admin Login Portal"}
+              aria-label="Admin Portal"
             >
               <ClipboardList className="w-4 h-4 md:w-4.5 md:h-4.5 text-[#173c2d]" />
               {ordersCount > 0 && (
@@ -209,16 +213,17 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             Our Story
           </a>
-          {onOpenOrdersManager && (
+          {(onOpenAdmin || onOpenOrdersManager) && (
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                onOpenOrdersManager();
+                if (onOpenAdmin) onOpenAdmin();
+                else if (onOpenOrdersManager) onOpenOrdersManager();
               }}
               className="py-2 text-[#173c2d] font-bold flex items-center justify-center gap-2 hover:bg-[#f6f2e9] rounded-xl"
             >
               <ClipboardList className="w-4 h-4" />
-              <span>Admin Order Numbers ({ordersCount})</span>
+              <span>{isAuthenticated ? 'Admin Dashboard' : 'Admin Login'} ({ordersCount})</span>
             </button>
           )}
         </div>

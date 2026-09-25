@@ -11,7 +11,10 @@ import {
   ShieldCheck,
   Sparkles,
   Layers,
-  X
+  X,
+  Lock,
+  UserCheck,
+  LayoutDashboard
 } from 'lucide-react';
 import { Order } from '../types';
 
@@ -22,6 +25,10 @@ interface AdminBannerProps {
   isVisible: boolean;
   onToggleVisible: () => void;
   onHeightChange?: (height: number) => void;
+  isAuthenticated?: boolean;
+  adminEmail?: string;
+  onOpenAdminDashboard?: () => void;
+  onOpenAdminLogin?: () => void;
 }
 
 export const AdminBanner: React.FC<AdminBannerProps> = ({
@@ -31,6 +38,10 @@ export const AdminBanner: React.FC<AdminBannerProps> = ({
   isVisible,
   onToggleVisible,
   onHeightChange,
+  isAuthenticated = false,
+  adminEmail = 'admin@zyntex.com',
+  onOpenAdminDashboard,
+  onOpenAdminLogin,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [quickSearch, setQuickSearch] = useState('');
@@ -165,6 +176,28 @@ export const AdminBanner: React.FC<AdminBannerProps> = ({
                 {totalOrders}
               </span>
             </button>
+
+            {/* Admin Panel Dashboard or Login Button */}
+            {isAuthenticated ? (
+              <button
+                onClick={onOpenAdminDashboard}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1e4c39] hover:bg-[#265d48] text-[#b6d4c1] hover:text-white border border-[#2d6b52] font-semibold transition-colors cursor-pointer text-xs"
+                title={`Admin Dashboard (${adminEmail})`}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="hidden sm:inline">Admin Dashboard</span>
+                <span className="sm:hidden">Admin</span>
+              </button>
+            ) : (
+              <button
+                onClick={onOpenAdminLogin}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#274438] hover:bg-[#345c4c] text-[#e5d8b8] border border-[#3c6b57] font-semibold transition-colors cursor-pointer text-xs"
+                title="Sign in to Zyntex Admin Portal"
+              >
+                <Lock className="w-3.5 h-3.5 text-[#e5d8b8]" />
+                <span>Admin Login</span>
+              </button>
+            )}
 
             {/* Collapse / Expand details */}
             <button
