@@ -101,30 +101,40 @@ export default function App() {
     }
   }, [orders]);
 
-  // Sync with URL Hash for Admin Route Navigation
+  // Sync with URL Pathname & Hash for Admin Route Navigation
   useEffect(() => {
-    const handleHash = () => {
+    const syncRoute = () => {
       const hash = window.location.hash.toLowerCase();
-      if (hash === '#admin' || hash === '#dashboard') {
+      const pathname = window.location.pathname.toLowerCase();
+
+      const isAdminRoute =
+        hash === '#admin' ||
+        hash === '#dashboard' ||
+        hash === '#login' ||
+        pathname === '/admin' ||
+        pathname === '/login' ||
+        pathname.startsWith('/admin/');
+
+      if (isAdminRoute) {
         if (isAuthenticated) {
           setCurrentView('admin-dashboard');
         } else {
           setCurrentView('admin-login');
         }
-      } else if (hash === '#login') {
-        if (isAuthenticated) {
-          setCurrentView('admin-dashboard');
-        } else {
-          setCurrentView('admin-login');
+      } else if (hash === '#store' || hash === '' || pathname === '/') {
+        if (!hash.startsWith('#admin') && !hash.startsWith('#login') && pathname !== '/admin') {
+          setCurrentView('store');
         }
-      } else if (hash === '#store' || hash === '') {
-        setCurrentView('store');
       }
     };
 
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    syncRoute();
+    window.addEventListener('hashchange', syncRoute);
+    window.addEventListener('popstate', syncRoute);
+    return () => {
+      window.removeEventListener('hashchange', syncRoute);
+      window.removeEventListener('popstate', syncRoute);
+    };
   }, [isAuthenticated]);
 
   // Toast helper
@@ -473,6 +483,15 @@ export default function App() {
           onExploreShop={() => scrollToSection('shop')}
           onExploreMood={() => scrollToSection('mood')}
           isAdminBannerVisible={isAdminBannerVisible}
+          onOpenAdmin={() => {
+            if (isAuthenticated) {
+              setCurrentView('admin-dashboard');
+              window.location.hash = 'admin';
+            } else {
+              setCurrentView('admin-login');
+              window.location.hash = 'login';
+            }
+          }}
         />
 
         {/* Mood Collections (Shop by mood) */}
@@ -513,7 +532,17 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer
+        onOpenAdmin={() => {
+          if (isAuthenticated) {
+            setCurrentView('admin-dashboard');
+            window.location.hash = 'admin';
+          } else {
+            setCurrentView('admin-login');
+            window.location.hash = 'login';
+          }
+        }}
+      />
 
       {/* Interactive Cart Drawer */}
       <CartDrawer

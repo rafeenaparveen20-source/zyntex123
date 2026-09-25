@@ -1,13 +1,19 @@
 import React from 'react';
-import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Sparkles, LayoutDashboard } from 'lucide-react';
 
 interface HeroProps {
   onExploreShop: () => void;
   onExploreMood: () => void;
   isAdminBannerVisible?: boolean;
+  onOpenAdmin?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onExploreShop, onExploreMood, isAdminBannerVisible = false }) => {
+export const Hero: React.FC<HeroProps> = ({ 
+  onExploreShop, 
+  onExploreMood, 
+  isAdminBannerVisible = false,
+  onOpenAdmin,
+}) => {
   return (
     <section className={`relative min-h-[90vh] flex flex-col justify-center ${isAdminBannerVisible ? 'pt-40 sm:pt-48 md:pt-52 lg:pt-48' : 'pt-28 sm:pt-36 md:pt-40'} pb-16 px-4 md:px-8 lg:px-14 overflow-hidden transition-all duration-300`}>
       {/* Background Soft Glow / Organic Shapes */}
@@ -59,6 +65,18 @@ export const Hero: React.FC<HeroProps> = ({ onExploreShop, onExploreMood, isAdmi
             >
               EXPLORE INSPIRATION
             </button>
+
+            {onOpenAdmin && (
+              <button
+                id="hero-admin-button"
+                onClick={onOpenAdmin}
+                className="px-6 py-4 rounded-full bg-[#f2ecdf] hover:bg-[#e6ddcc] text-[#173c2d] font-bold text-xs md:text-sm tracking-wider uppercase border border-[#d5cbba] hover:-translate-y-0.5 shadow-xs transition-all duration-200 cursor-pointer flex items-center gap-2"
+                title="Open Zyntex Admin Dashboard & Operations"
+              >
+                <LayoutDashboard className="w-4 h-4 text-[#173c2d]" />
+                <span>ADMIN DASHBOARD</span>
+              </button>
+            )}
           </div>
 
           {/* Trust stats pill */}

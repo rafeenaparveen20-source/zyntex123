@@ -1,6 +1,11 @@
 import React from 'react';
+import { LayoutDashboard, Lock } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenAdmin?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -97,7 +102,7 @@ export const Footer: React.FC = () => {
           {/* Help column */}
           <div>
             <h4 className="font-semibold text-white text-sm uppercase tracking-wider mb-4">
-              Help
+              Help & Operations
             </h4>
             <ul className="space-y-2.5 text-sm text-[#bdcbbd]">
               <li>
@@ -112,6 +117,17 @@ export const Footer: React.FC = () => {
               <li>
                 <span className="text-[#bdcbbd]/80">Contact Concierge</span>
               </li>
+              {onOpenAdmin && (
+                <li className="pt-2">
+                  <button
+                    onClick={onOpenAdmin}
+                    className="flex items-center gap-1.5 text-xs text-[#e5d8b8] hover:text-white font-bold bg-[#1e4838] px-3 py-1.5 rounded-full border border-[#2e624c] transition-colors cursor-pointer"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    <span>Admin Dashboard</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -123,6 +139,15 @@ export const Footer: React.FC = () => {
             <span>Privacy Policy</span>
             <span>Terms of Service</span>
             <span>Shipping Policy</span>
+            {onOpenAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                className="hover:text-white flex items-center gap-1 cursor-pointer font-medium"
+              >
+                <Lock className="w-3 h-3 text-[#8b6b4d]" />
+                <span>Admin Portal</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

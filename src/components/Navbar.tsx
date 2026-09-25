@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Heart, ShoppingBag, Menu, X, ClipboardList, Sparkles } from 'lucide-react';
+import { Search, Heart, ShoppingBag, Menu, X, ClipboardList, Sparkles, LayoutDashboard } from 'lucide-react';
 
 interface NavbarProps {
   cartCount: number;
@@ -109,18 +109,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action Icons */}
         <div className="flex items-center gap-1.5 md:gap-2">
-          {/* Admin Portal button */}
+          {/* Admin Dashboard Button */}
           {(onOpenAdmin || onOpenOrdersManager) && (
             <button
-              id="nav-orders-button"
+              id="nav-admin-dashboard-btn"
               onClick={onOpenAdmin || onOpenOrdersManager}
-              className="relative w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center text-[#20251f] hover:bg-[#eee9df] hover:text-[#173c2d] transition-colors"
-              title={isAuthenticated ? "Store Admin Dashboard" : "Admin Login Portal"}
-              aria-label="Admin Portal"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#173c2d] hover:bg-[#255743] text-white text-xs font-semibold shadow-xs hover:shadow-sm transition-all cursor-pointer mr-1"
+              title="Open Zyntex Admin Dashboard & Operations"
             >
-              <ClipboardList className="w-4 h-4 md:w-4.5 md:h-4.5 text-[#173c2d]" />
+              <LayoutDashboard className="w-3.5 h-3.5 text-[#e5d8b8]" />
+              <span className="hidden sm:inline font-bold">Admin Dashboard</span>
+              <span className="sm:hidden font-bold">Admin</span>
               {ordersCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#173c2d] text-[#e5d8b8] text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                <span className="bg-[#e5d8b8] text-[#173c2d] text-[10px] px-1.5 py-0.2 rounded-full font-bold tabular-nums">
                   {ordersCount}
                 </span>
               )}
